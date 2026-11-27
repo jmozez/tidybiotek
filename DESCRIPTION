@@ -23,7 +23,7 @@ Description: Tidy, pipe-friendly tools for applied biotechnology
     <doi:10.1021/ci600426e>. Everything is written in base R and 'stats',
     with no Bioconductor or compiled dependencies.
 License: MIT + file LICENSE
-URL: https://github.com/jmozez/tidybiotek
+URL: https://tidybiotek.in4metrix.dev/, https://github.com/jmozez/tidybiotek
 BugReports: https://github.com/jmozez/tidybiotek/issues
 Depends: 
     R (>= 4.1.0)

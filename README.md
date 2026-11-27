@@ -4,11 +4,15 @@
 # tidybiotek
 
 <!-- badges: start -->
-
 [![R-CMD-check](https://github.com/jmozez/tidybiotek/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmozez/tidybiotek/actions/workflows/R-CMD-check.yaml)
-[![lint](https://github.com/jmozez/tidybiotek/actions/workflows/lint.yaml/badge.svg)](https://github.com/jmozez/tidybiotek/actions/workflows/lint.yaml)
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lint](https://github.com/jmozez/tidybiotek/actions/workflows/lint.yaml/badge.svg)](https://github.com/jmozez/tidybiotek/actions/workflows/lint.yaml)
+[![Website deploy](https://github.com/jmozez/tidybiotek/actions/workflows/vercel.yaml/badge.svg)](https://github.com/jmozez/tidybiotek/actions/workflows/vercel.yaml)
+[![GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/jmozez/tidybiotek)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jmozez/tidybiotek/blob/main/LICENSE.md)
+[![Website](https://img.shields.io/badge/website-tidybiotek.in4metrix.dev-1A9E93)](https://tidybiotek.in4metrix.dev)
+[![Advice with tidyvisor](https://img.shields.io/badge/advice%20with-tidyvisor-1A9E93)](https://tidyvisor.in4metrix.dev)
+[![Maps with tidymapr](https://img.shields.io/badge/maps%20with-tidymapr-11376B)](https://tidymapr.in4metrix.dev)
 <!-- badges: end -->
 
 **tidybiotek** brings applied biotechnology bioinformatics into the
