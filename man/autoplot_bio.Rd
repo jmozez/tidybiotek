@@ -37,6 +37,9 @@ A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
 \item enzyme kinetics: rates and fitted Michaelis-Menten curves;
 \item Monod growth: biomass and substrate time courses with fitted growth
 curves;
+\item primary growth curves: log population size with the fitted Gompertz,
+logistic, Richards or Baranyi curves;
+\item qPCR standard curves: quantification cycle against log quantity;
 \item qPCR: fold changes with confidence intervals on a log2 scale;
 \item differential expression: a volcano plot (\code{type = "volcano"}) or an MA
 plot (\code{type = "ma"});

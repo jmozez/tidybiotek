@@ -37,6 +37,7 @@ moderation) are written in base R and \code{stats}.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://tidybiotek.in4metrix.dev/}
   \item \url{https://github.com/jmozez/tidybiotek}
   \item Report bugs at \url{https://github.com/jmozez/tidybiotek/issues}
 }

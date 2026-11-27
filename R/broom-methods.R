@@ -71,6 +71,8 @@ tidy.bio_assay <- function(x, conf.level = NULL, ...) { # nolint: object_name_li
       mm_params(f, level, meta$enzyme_conc)
     }),
     monod = with_key(active_fits(x), function(f) monod_params(f, level)),
+    growth_curve = with_key(active_fits(x), function(f) growth_params(f, level)),
+    qpcr_standard = with_key(active_fits(x), function(f) qpcr_standard_params(f, level)),
     qpcr = qpcr_summary(x, level),
     tibble::as_tibble(strip_bio(x))
   )
@@ -84,6 +86,8 @@ glance.bio_assay <- function(x, ...) {
     dose_response = ,
     elisa = ,
     enzyme_kinetics = ,
+    growth_curve = ,
+    qpcr_standard = ,
     monod = with_key(active_fits(x), fit_stats_any),
     qpcr = tibble::tibble(
       n_samples = length(unique(x[[meta$sample]])),
@@ -106,14 +110,18 @@ fit_stats_any <- function(f) {
 #' @exportS3Method generics::augment
 augment.bio_assay <- function(x, ...) {
   meta <- bio_meta(x)
-  if (meta$assay %in% c("dose_response", "enzyme_kinetics")) {
+  if (meta$assay %in% c("dose_response", "enzyme_kinetics", "growth_curve", "qpcr_standard")) {
     data <- meta$data
     fitted <- rep(NA_real_, nrow(data))
     for (f in active_fits(x)) {
       fitted[f$rows] <- f$fitted
     }
     data$.fitted <- fitted
-    data$.resid <- data[[meta$y]] - fitted
+    observed <- data[[meta$y]]
+    if (identical(meta$transform, "log")) {
+      observed <- log(observed)
+    }
+    data$.resid <- observed - fitted
     return(data[!is.na(fitted), ])
   }
   if (meta$assay == "elisa") {

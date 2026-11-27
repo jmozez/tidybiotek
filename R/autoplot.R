@@ -36,6 +36,9 @@ point_data <- function(fits) {
 #' * enzyme kinetics: rates and fitted Michaelis-Menten curves;
 #' * Monod growth: biomass and substrate time courses with fitted growth
 #'   curves;
+#' * primary growth curves: log population size with the fitted Gompertz,
+#'   logistic, Richards or Baranyi curves;
+#' * qPCR standard curves: quantification cycle against log quantity;
 #' * qPCR: fold changes with confidence intervals on a log2 scale;
 #' * differential expression: a volcano plot (`type = "volcano"`) or an MA
 #'   plot (`type = "ma"`);
@@ -76,6 +79,8 @@ autoplot.bio_assay <- function(object, ...) {
     elisa = plot_elisa(object, meta),
     enzyme_kinetics = plot_enzyme(object, meta),
     monod = plot_monod(object, meta),
+    growth_curve = plot_growth(object, meta),
+    qpcr_standard = plot_qpcr_standard(object, meta),
     qpcr = plot_qpcr(object, meta),
     cli::cli_abort("There is no plot for assay type {.val {meta$assay}}.")
   )
