@@ -1,0 +1,168 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%",
+  dpi = 120
+)
+```
+
+# tidybiotek
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/jmozez/tidybiotek/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmozez/tidybiotek/actions/workflows/R-CMD-check.yaml)
+[![lint](https://github.com/jmozez/tidybiotek/actions/workflows/lint.yaml/badge.svg)](https://github.com/jmozez/tidybiotek/actions/workflows/lint.yaml)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
+**tidybiotek** brings applied biotechnology bioinformatics into the
+tidyverse and tidymodels. Every function takes a data frame first, uses
+tidy evaluation for its column arguments and returns a tibble, so whole
+analyses read as pipelines. Everything is written in base R and `stats`:
+there are no Bioconductor or compiled dependencies, so it installs
+cleanly on any system.
+
+| Module | Functions |
+|---|---|
+| Sequences | `bio_seq_tbl()`, `bio_translate()`, `bio_gc_content()`, `bio_codon_weights()`, `bio_cai()`, `bio_codon_optimise()`, `bio_primer_tm()`, `bio_kmer_count()`, `bio_aa_props()` |
+| Assays | `bio_qpcr_ddct()` (delta-delta Ct and Pfaffl), `bio_dose_response()` (4PL IC50 and EC50), `bio_elisa_quant()` |
+| Bioprocess | `bio_enzyme_kinetics()` (Michaelis-Menten), `bio_monod_growth()` (batch bioreactor kinetics) |
+| Omics | `bio_diff_expr()` (moderated t-test), `bio_enrich()` (over-representation analysis) |
+| recipes | `step_bio_kmers()`, `step_bio_aa_props()`, `step_bio_vst_norm()` |
+| rsample | `bio_homology_cv()`, `bio_batch_cv()` |
+| yardstick | `enrichment_factor()`, `bedroc()`, `assay_cv_error()` |
+| parsnip | `bio_four_pl()` with the `"nls_4pl"` engine |
+| Reporting | `tidy()`, `glance()`, `augment()` and `autoplot()` methods |
+
+## Installation
+
+Install the development version from GitHub:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("jmozez/tidybiotek")
+```
+
+[tidyvisor](https://github.com/jmozez/tidyvisor) is the companion
+statistical advisor for study design, power, assumptions and
+interpretation. It is optional: tidybiotek works on its own.
+
+``` r
+remotes::install_github("jmozez/tidyvisor")
+```
+
+## Sequences
+
+Translate the *E. coli* K-12 coding sequences in `ecoli_cds` and compare
+codon adaptation between ribosomal protein genes and other genes:
+
+```{r sequences, message = FALSE}
+library(tidybiotek)
+library(dplyr)
+
+ecoli_cds |>
+  bio_translate(sequence, code = "bacterial", to_stop = TRUE, start_as_met = TRUE) |>
+  bio_gc_content(sequence, by_position = TRUE) |>
+  bio_cai(sequence) |>
+  group_by(class) |>
+  summarise(
+    genes = n(),
+    translations_match = mean(translated == protein),
+    gc3 = mean(gc3),
+    cai = mean(cai)
+  )
+```
+
+Melting temperatures of common sequencing primers by the
+nearest-neighbour method:
+
+```{r primers}
+tibble::tibble(
+  name = c("M13F", "M13R", "T7"),
+  primer = c("GTAAAACGACGGCCAGT", "CAGGAAACAGCTATGAC", "TAATACGACTCACTATAGGG")
+) |>
+  bio_primer_tm(primer)
+```
+
+## Assays
+
+Four-parameter logistic fits give IC50 and EC50 values with confidence
+intervals:
+
+```{r dose-response}
+fit <- bio_dose_response(dose_response_sim, dose, response, .by = compound)
+fit |> select(compound, ec50, ec50_low, ec50_high, hill, type)
+```
+
+```{r dose-plot, fig.height = 3.5}
+autoplot(fit)
+```
+
+Relative expression from qPCR Ct values:
+
+```{r qpcr}
+bio_qpcr_ddct(qpcr_sim, ct, gene, sample, treatment,
+  reference_genes = c("gapA", "rpoD"), control = "control"
+) |>
+  tidy() |>
+  filter(treatment != "control") |>
+  select(gene, treatment, fold_change, conf.low, conf.high, p.value)
+```
+
+## Bioprocess kinetics
+
+```{r kinetics}
+bio_enzyme_kinetics(puromycin_kinetics, substrate, rate, .by = state)
+
+bio_monod_growth(fermentation_sim, time_h, biomass_g_l,
+  substrate = glucose_g_l, .by = reactor
+) |>
+  select(reactor, mu_max, ks, yield, doubling_time)
+```
+
+## Omics
+
+```{r omics}
+de <- bio_diff_expr(expression_sim, gene, sample, count, condition,
+  treatment = "stress", reference = "control", transform = "log2_cpm"
+)
+glance(de)
+
+bio_enrich(de, feature, p_adj < 0.05 & log2fc > 0, gene_sets_sim) |>
+  select(gene_set, set_size, overlap, fold_enrichment, p_adj) |>
+  head(3)
+```
+
+## tidymodels
+
+Sequence features, homology-aware resampling and early-recognition
+metrics plug straight into tidymodels:
+
+```{r tidymodels}
+rec <- recipes::recipe(class ~ protein, data = ecoli_cds) |>
+  step_bio_aa_props(protein) |>
+  recipes::prep()
+recipes::bake(rec, new_data = NULL) |> head(3)
+
+set.seed(1)
+bio_homology_cv(ecoli_cds, protein, v = 5, k = 2, threshold = 0.2)
+```
+
+## Data
+
+`ecoli_cds` comes from NCBI RefSeq NC_000913.3, `dnase_elisa` and
+`puromycin_kinetics` are tidy copies of the classic R datasets `DNase`
+and `Puromycin`. `qpcr_sim`, `dose_response_sim`, `fermentation_sim`,
+`expression_sim` and `gene_sets_sim` are simulated with known true values
+so that methods can be checked; `data-raw/make_data.R` builds them all.
+
+## Licence
+
+MIT (c) Jimmy Moses
